@@ -1,18 +1,14 @@
 {
-  "name": "@klaytn/contract-template",
+  "name": "@klaytn/contract-demo-poll",
   "version": "0.0.1",
-  "description": "This template provides a template for contract development and operation, including tools and conventions. These are recommended and not mendatory. If you have a suggestion, please make a PR to the template.",
+  "description": "Poll contract and dApp demo",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/klaytn/contract-template.git"
+    "url": "git+https://github.com/klaytn/contract-demo-poll.git"
   },
   "author": "Klaytn Team",
   "license": "ISC",
   "main": "dist/lib/index.js",
-  "bugs": {
-    "url": "https://github.com/klaytn/contract-template/issues"
-  },
-  "homepage": "https://github.com/klaytn/contract-template",
   "keywords": [
     "klaytn",
     "smart-contracts"
