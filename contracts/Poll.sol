@@ -2,14 +2,26 @@
 pragma solidity ^0.8.13;
 
 contract Poll {
-    uint256 public cat;
-    uint256 public dog;
+    address public owner;
 
-    function voteCat() public {
-        cat++;
+    uint256 public catVotes;
+    uint256 public dogVotes;
+
+    constructor() {
+        owner = msg.sender;
     }
 
-    function voteDog() public {
-        dog++;
+    function reset() external {
+        require(msg.sender == owner);
+        catVotes = 0;
+        dogVotes = 0;
+    }
+
+    function voteCat() external {
+        catVotes++;
+    }
+
+    function voteDog() external {
+        dogVotes++;
     }
 }
