@@ -3,32 +3,41 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
+const hasMetaMask = window.ethereum && window.ethereum.isMetaMask;
+const hasKaikas = window.klaytn && window.klaytn.isKaikas;
+
 function App() {
-  const [count, setCount] = useState(0)
+    const [wallet, setWallet] = useState({
+        accounts: []
+    })
+
+  const connectMetamask = async () => {
+    let accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+    })
+      console.log('mm', accounts);
+    setWallet({ accounts });
+  }
+  const connectKaikas = async () => {
+    let accounts = await window.klaytn.request({
+        method: "eth_requestAccounts",
+    })
+      console.log('kk', accounts);
+    setWallet({ accounts });
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          hello count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="App">
+      <h2>Poll demo</h2>
+
+      { hasMetaMask &&
+        <button onClick={connectMetamask}>Connect MetaMask</button> }
+      { hasKaikas &&
+        <button onClick={connectKaikas}>Connect Kaikas</button> }
+
+      { wallet.accounts.length > 0 &&
+        <div>Connected as: { wallet.accounts[0] }</div> }
+    </div>
   )
 }
 
