@@ -1,43 +1,57 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Button, Container, Navbar } from 'react-bootstrap';
 
 const hasMetaMask = window.ethereum && window.ethereum.isMetaMask;
 const hasKaikas = window.klaytn && window.klaytn.isKaikas;
 
 function App() {
-    const [wallet, setWallet] = useState({
-        accounts: []
-    })
+  const [wallet, setWallet] = useState({
+    account: null,
+    provider: null,
+  })
 
   const connectMetamask = async () => {
     let accounts = await window.ethereum.request({
-        method: "eth_requestAccounts",
+      method: "eth_requestAccounts",
     })
-      console.log('mm', accounts);
-    setWallet({ accounts });
+    setWallet({
+      account: accounts[0],
+      provider: window.ethereum,
+    });
   }
   const connectKaikas = async () => {
     let accounts = await window.klaytn.request({
-        method: "eth_requestAccounts",
+      method: "eth_requestAccounts",
     })
-      console.log('kk', accounts);
-    setWallet({ accounts });
+    setWallet({
+      account: accounts[0],
+      provider: window.klaytn,
+    });
+  }
+  const disconnect = async () => {
+    setWallet({
+      account: null,
+      provider: null,
+    });
   }
 
   return (
-    <div className="App">
-      <h2>Poll demo</h2>
+    <Container>
+      <Navbar expand="lg" className="bg-body-tertiary">
+        <Navbar.Brand>Poll dApp demo</Navbar.Brand>
+        <div class="ml-auto">
+          { !wallet.account && hasMetaMask &&
+            <Button variant="primary" onClick={connectMetamask}>Connect MetaMask</Button> }
+          { !wallet.account && hasKaikas &&
+            <Button variant="primary" onClick={connectKaikas}>Connect Kaikas</Button> }
+          { wallet.account  &&
+            <Button variant="secondary" onClick={disconnect}>Disconnect</Button> }
+        </div>
+      </Navbar>
 
-      { hasMetaMask &&
-        <button onClick={connectMetamask}>Connect MetaMask</button> }
-      { hasKaikas &&
-        <button onClick={connectKaikas}>Connect Kaikas</button> }
-
-      { wallet.accounts.length > 0 &&
-        <div>Connected as: { wallet.accounts[0] }</div> }
-    </div>
+      { wallet.account &&
+        <div>Connected as: { wallet.account }</div> }
+    </Container>
   )
 }
 
