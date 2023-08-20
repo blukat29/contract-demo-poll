@@ -43,6 +43,10 @@ function App() {
   const handleModalOpen = () => setModalShow(true);
   const handleModalClose = () => setModalShow(false);
 
+  const abbreviateAddress = (address: string): string => {
+    return address.substring(0,6) + "..." + address.substring(38);
+  }
+
   return (
     <Container className="container-sm">
       <Navbar className="ps-3 pe-3 bg-light">
@@ -50,6 +54,8 @@ function App() {
           <Navbar.Brand>Poll dApp demo</Navbar.Brand>
           { !wallet.account &&
             <Button className="ms-auto" variant="primary" onClick={handleModalOpen}>Connect Wallet</Button> }
+          { wallet.account &&
+            <div className="p-2">Connected as { abbreviateAddress(wallet.account) }</div> }
           { wallet.account  &&
             <Button className="ms-auto" variant="secondary" onClick={disconnect}>Disconnect</Button> }
         </Stack>
@@ -69,8 +75,6 @@ function App() {
         </Modal.Body>
       </Modal>
 
-      { wallet.account &&
-        <div>Connected as: { wallet.account }</div> }
     </Container>
   )
 }
