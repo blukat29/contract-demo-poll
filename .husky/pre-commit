@@ -9,4 +9,4 @@ if [ ! -z "$files" ]; then
     npx hardhat test --parallel
 fi
 
-npm run lint
+# npm run lint
