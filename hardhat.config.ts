@@ -1,4 +1,4 @@
-import { HardhatUserConfig } from "hardhat/config";
+import { HardhatUserConfig, task } from "hardhat/config";
 import "hardhat-deploy";
 import "@nomicfoundation/hardhat-toolbox";
 import "@klaytn/hardhat-utils";
@@ -7,6 +7,12 @@ import "@primitivefi/hardhat-dodoc";
 // the first key of test-junk
 const defaultKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
 const defaultKey2 = "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d";
+
+task("node", 'Starts a JSON-RPC server on top of Hardhat EVM')
+  .setAction(async (args: any, _hre: any, runSuper: any) => {
+    args.noDeploy = true;
+    await runSuper(args);
+  });
 
 const config: HardhatUserConfig = {
   solidity: {
