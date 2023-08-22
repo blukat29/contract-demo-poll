@@ -1,9 +1,12 @@
 import { ReactElement, useState } from "react";
-import { Button, Col, Row, Spinner } from "react-bootstrap";
+import { Button, Col, Form, Image, Row, Spinner, Stack } from "react-bootstrap";
 import { BigNumber, ethers } from "ethers";
 import { useQuery } from "@tanstack/react-query";
 
 import pollAbi from "../abi/poll.json";
+import catPng from "../assets/cat.png";
+import dogPng from "../assets/dog.png";
+
 import { User } from "../type/common";
 
 //// TODO : change contract address
@@ -65,47 +68,50 @@ const Home = ({ user }: { user: User }): ReactElement => {
     <div>
       <Row>
         <Col>
-          <b>Cat :</b> {data?.cats.toString()}
+          <Stack gap={2}>
+            <Stack gap={1} className="align-items-center">
+              <Image src={catPng} style={{ width: 200, height: 200 }} />
+              <Button
+                variant="primary"
+                style={{ width: "100%" }}
+                disabled={pendingTx}
+                onClick={(): void => {
+                  onClickVote({ isCat: true });
+                }}
+              >
+                Vote
+              </Button>
+            </Stack>
+            <Form.Text style={{ fontSize: 24 }}>
+              <b>Cat :</b> {data?.cats.toString()}
+            </Form.Text>
+          </Stack>
         </Col>
-      </Row>
-      <Row>
+        <Col className="col-1" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Form.Text style={{ fontSize: 20, fontWeight: "bold" }}>VS</Form.Text>
+        </Col>
         <Col>
-          <b>Dog : </b> {data?.doges.toString()}
+          <Stack gap={2}>
+            <Stack gap={1} className="align-items-center">
+              <Image src={dogPng} style={{ width: 200, height: 200 }} />
+              <Button
+                variant="success"
+                style={{ width: "100%" }}
+                disabled={pendingTx}
+                onClick={(): void => {
+                  onClickVote({ isCat: false });
+                }}
+              >
+                Dog
+              </Button>
+            </Stack>
+            <Form.Text style={{ fontSize: 24 }}>
+              <b>Dog : </b> {data?.doges.toString()}
+            </Form.Text>
+          </Stack>
         </Col>
       </Row>
 
-      <hr />
-      <Row>
-        <Col>
-          <b>Vote</b>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <Button
-            variant="primary"
-            style={{ width: "100%" }}
-            disabled={pendingTx}
-            onClick={(): void => {
-              onClickVote({ isCat: true });
-            }}
-          >
-            Cat
-          </Button>
-        </Col>
-        <Col>
-          <Button
-            variant="success"
-            style={{ width: "100%" }}
-            disabled={pendingTx}
-            onClick={(): void => {
-              onClickVote({ isCat: false });
-            }}
-          >
-            Dog
-          </Button>
-        </Col>
-      </Row>
       <hr />
       <Row>
         <Col>

@@ -11,10 +11,11 @@ function App() {
 
   return (
     <AppProvider>
-      <Container className="container-sm">
+      <Container style={{ maxWidth: 800 }}>
         <Nav user={user} setUser={setUser} />
-
-        {user ? <Home user={user} /> : <Form.Text style={{ fontSize: 24 }}>Please connect wallet</Form.Text>}
+        <div style={{ paddingTop: 60 }}>
+          {user ? <Home user={user} /> : <Form.Text style={{ fontSize: 24 }}>Please connect wallet</Form.Text>}
+        </div>
       </Container>
     </AppProvider>
   );
