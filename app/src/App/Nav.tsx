@@ -56,6 +56,20 @@ const Nav = ({
     }
   }, [!!user]);
 
+  useEffect(() => {
+    if (hasMetaMask) {
+      window.ethereum.on('accountsChanged', (accounts: string[]) => {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        setUser({
+            address: accounts[0],
+            provider,
+             signer,
+          });
+      });
+    }
+  });
+
   return (
     <>
       <Navbar>
