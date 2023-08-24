@@ -10,75 +10,69 @@ import dogPng from "../assets/dog.png";
 import { User } from "../type/common";
 
 //// TODO : change contract address
-// const VOTE_CONTRACT = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // local
-const VOTE_CONTRACT = "0x6517968e4fcc3a5d3e3369f51c62991d0143cd2f"; // baobab
+const POLL_CONTRACT = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // local
+// const POLL_CONTRACT = "0x6517968e4fcc3a5d3e3369f51c62991d0143cd2f"; // baobab
+
+const RPC_ENDPOINT = "http://localhost:8545";
 
 const Home = ({ user }: { user: User }): ReactElement => {
-  const contract = new ethers.Contract(VOTE_CONTRACT, pollAbi, user.provider);
-
   const [txHash, setTxHash] = useState("");
   const [pendingTx, setPendingTx] = useState(false);
 
-  const { data, refetch } = useQuery(["votes"], async () => {
-    const cats = (await contract.catVotes()) as BigNumber;
-    const doges = (await contract.dogVotes()) as BigNumber;
-
+  const fetchVotes = async () => {
+    const provider = new ethers.providers.JsonRpcProvider(RPC_ENDPOINT);
+    const contract = new ethers.Contract(POLL_CONTRACT, pollAbi, provider);
     return {
-      cats,
-      doges,
+      cats: await contract.catVotes(),
+      dogs: await contract.dogVotes(),
+      owner: await contract.owner(),
     };
+  }
+  const { data, refetch } = useQuery(["votes"], fetchVotes, {
+    staleTime: 10*1000, // fetch at least 10 seconds later
   });
 
-  const _sendTx = async ({ data }: { data: string }): Promise<void> => {
-    const txRes = await user.signer.sendTransaction({
-      from: user.address,
-      to: VOTE_CONTRACT,
-      data,
-    });
-    const txHash = txRes.hash;
-    setTxHash(txHash);
+  const sendTx = async({ func, args = [] }: { func: string, args?: any[] }): Promise<void> => {
+    if (!user) {
+      alert("Connect wallet first");
+      return;
+    }
 
     setPendingTx(true);
-    txRes
-      .wait()
-      .then((): void => {
-        refetch();
-        setTimeout(() => {
-          window.alert(
-            `Tx completed ! TxHash : ${txHash.substring(0, 6)}...${txHash.substring(txHash.length - 6, txHash.length)}`,
-          );
-        }, 500);
-      })
-      .finally(() => {
-        setPendingTx(false);
-      });
-  };
+    const contract = new ethers.Contract(POLL_CONTRACT, pollAbi, user.provider);
 
-  const onClickVote = async ({ isCat }: { isCat: boolean }): Promise<void> => {
-    const data = contract.interface.encodeFunctionData(isCat ? "voteCat" : "voteDog");
-    _sendTx({ data });
-  };
+    const sentTx = await contract.connect(user.signer)[func](...args);
+    setTxHash(sentTx.hash);
 
-  const onClickReset = async (): Promise<void> => {
-    const data = contract.interface.encodeFunctionData("reset");
-    _sendTx({ data });
+    await sentTx.wait();
+    await refetch();
+    setPendingTx(false);
   };
+  const onClickVoteCat = async () => sendTx({ func: "voteCat" });
+  const onClickVoteDog = async () => sendTx({ func: "voteDog" });
+  const onClickReset = async () => {
+    if (user && user.address != data?.owner) {
+      alert("You are not the owner.");
+      return;
+    }
+    sendTx({ func: "reset" });
+  }
 
   return (
     <div>
       <Row>
         <Col>
+          <p>RPC_ENDPOINT: { RPC_ENDPOINT }</p>
+          <p>POLL_CONTRACT: { POLL_CONTRACT }</p>
+        </Col>
+      </Row>
+      <hr />
+      <Row>
+        <Col>
           <Stack gap={2}>
             <Stack gap={1} className="align-items-center">
               <Image src={catPng} style={{ width: 200, height: 200 }} />
-              <Button
-                variant="primary"
-                style={{ width: "100%" }}
-                disabled={pendingTx}
-                onClick={(): void => {
-                  onClickVote({ isCat: true });
-                }}
-              >
+              <Button variant="primary" className="w-100" disabled={pendingTx} onClick={onClickVoteCat}>
                 Vote
               </Button>
             </Stack>
@@ -94,19 +88,12 @@ const Home = ({ user }: { user: User }): ReactElement => {
           <Stack gap={2}>
             <Stack gap={1} className="align-items-center">
               <Image src={dogPng} style={{ width: 200, height: 200 }} />
-              <Button
-                variant="success"
-                style={{ width: "100%" }}
-                disabled={pendingTx}
-                onClick={(): void => {
-                  onClickVote({ isCat: false });
-                }}
-              >
-                Dog
+              <Button variant="primary" className="w-100" disabled={pendingTx} onClick={onClickVoteDog}>
+                Vote
               </Button>
             </Stack>
             <Form.Text style={{ fontSize: 24 }}>
-              <b>Dog : </b> {data?.doges.toString()}
+              <b>Dog : </b> {data?.dogs.toString()}
             </Form.Text>
           </Stack>
         </Col>
@@ -115,22 +102,11 @@ const Home = ({ user }: { user: User }): ReactElement => {
       <hr />
       <Row>
         <Col>
-          <Button variant="danger" disabled={pendingTx} style={{ width: "100%" }} onClick={onClickReset}>
+          <Button variant="danger" className="w-100" disabled={pendingTx} onClick={onClickReset}>
             Reset
           </Button>
         </Col>
       </Row>
-      {txHash && (
-        <>
-          <hr />
-          <Row>
-            <Col>
-              <b>{pendingTx && <Spinner size="sm" />} TX Hash :</b> <br />
-              {txHash}
-            </Col>
-          </Row>
-        </>
-      )}
     </div>
   );
 };

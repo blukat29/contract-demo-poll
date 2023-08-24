@@ -14,7 +14,7 @@ function App() {
       <Container style={{ maxWidth: 800 }}>
         <Nav user={user} setUser={setUser} />
         <div style={{ paddingTop: 60 }}>
-          {user ? <Home user={user} /> : <Form.Text style={{ fontSize: 24 }}>Please connect wallet</Form.Text>}
+          <Home user={user} />
         </div>
       </Container>
     </AppProvider>
