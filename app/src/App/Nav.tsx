@@ -3,6 +3,7 @@ import { Button, Stack, Modal, Navbar, Badge } from "react-bootstrap";
 import { ethers } from "ethers";
 import { User, EIP1193Provider } from "../type/common";
 
+const RPC_ENDPOINT = import.meta.env.VITE_RPC_ENDPOINT;
 const hasMetaMask = window.ethereum && window.ethereum.isMetaMask;
 const hasKaikas = window.klaytn && window.klaytn.isKaikas;
 
@@ -40,12 +41,26 @@ const Nav = ({
     return address.substring(0, 6) + "..." + address.substring(38);
   };
 
+  const desiredChainId = async () => {
+    const provider = new ethers.providers.JsonRpcProvider(RPC_ENDPOINT);
+    const netinfo = await provider.getNetwork();
+    return netinfo.chainId;
+  }
   useEffect(() => {
     // https://docs.metamask.io/wallet/reference/provider-api/#accountschanged
     if (user) {
       user.proxy.on('accountsChanged', () => {
         console.log('accountsChanged');
         connectWallet(user.proxy);
+      });
+
+      // https://eips.ethereum.org/EIPS/eip-3326
+      // Wallet will pop-up if the wallet is connected to a wrong chain.
+      desiredChainId().then((chainId) => {
+        user.proxy.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: ethers.utils.hexlify(chainId) }],
+        });
       });
     }
   });
