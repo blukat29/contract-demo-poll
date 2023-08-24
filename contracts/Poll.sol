@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-contract Poll {
+import "./IPoll.sol";
+
+contract Poll is IPoll {
     address public owner;
 
     uint256 public catVotes;
