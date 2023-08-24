@@ -14,10 +14,8 @@ const Nav = ({
   setUser: React.Dispatch<React.SetStateAction<User | undefined>>;
 }): ReactElement => {
   const [modalShow, setModalShow] = useState(false);
-  const [netStat, setNetStat] = useState({
-    lastRefresh: Date.now(),
-    health: "connecting",
-  });
+  const handleModalOpen = () => setModalShow(true);
+  const handleModalClose = () => setModalShow(false);
 
   const connectWallet = async (proxy: EIP1193Provider) => {
     // https://docs.ethers.org/v5/getting-started/#getting-started--connecting
@@ -34,38 +32,19 @@ const Nav = ({
   }
   const connectMetamask = async () => connectWallet(window.ethereum);
   const connectKaikas = async () => connectWallet(window.klaytn);
-
   const disconnect = async () => {
     setUser(undefined);
   };
-
-  const refreshNetworkStatus = async () => {
-    try {
-      await user?.provider.getBlockNumber();
-      setNetStat({ lastRefresh: Date.now(), health: "healthy" });
-    } catch (e) {
-      setNetStat({ lastRefresh: netStat.lastRefresh, health: "unreachable" });
-    }
-  };
-
-  const handleModalOpen = () => setModalShow(true);
-  const handleModalClose = () => setModalShow(false);
 
   const abbreviateAddress = (address: string): string => {
     return address.substring(0, 6) + "..." + address.substring(38);
   };
 
   useEffect(() => {
-    if (user) {
-      const timer = setInterval(refreshNetworkStatus, 2000);
-      return () => clearInterval(timer);
-    }
-  }, [!!user]);
-
-  useEffect(() => {
     // https://docs.metamask.io/wallet/reference/provider-api/#accountschanged
     if (user) {
       user.proxy.on('accountsChanged', () => {
+        console.log('accountsChanged');
         connectWallet(user.proxy);
       });
     }
@@ -77,11 +56,12 @@ const Nav = ({
         <Navbar.Brand>Poll dApp demo</Navbar.Brand>
         {user ? (
           <>
-            <Badge bg="info">Chain Id : {user.provider.network?.chainId}</Badge>
-            <div className="p-2">Connected as {abbreviateAddress(user.address)}</div>
-            <Button className="ms-auto" variant="secondary" onClick={disconnect}>
-              Disconnect
-            </Button>
+            <div className="ms-auto">
+              <Navbar.Text className="p-2">Connected as: {abbreviateAddress(user.address)}</Navbar.Text>
+              <Button variant="secondary" onClick={disconnect}>
+                Disconnect
+              </Button>
+            </div>
           </>
         ) : (
           <Button className="ms-auto" variant="primary" onClick={handleModalOpen}>
