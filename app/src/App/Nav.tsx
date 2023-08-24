@@ -1,9 +1,10 @@
 import { useState, useEffect, ReactElement } from "react";
 import { Button, Stack, Modal, Navbar, Badge } from "react-bootstrap";
 import { ethers } from "ethers";
-import { User } from "../type/common";
+import { User, EIP1193Provider } from "../type/common";
 
 const hasMetaMask = window.ethereum && window.ethereum.isMetaMask;
+const hasKaikas = window.klaytn && window.klaytn.isKaikas;
 
 const Nav = ({
   user,
@@ -18,16 +19,21 @@ const Nav = ({
     health: "connecting",
   });
 
-  const connectMetamask = async () => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const connectWallet = async (proxy: EIP1193Provider) => {
+    // https://docs.ethers.org/v5/getting-started/#getting-started--connecting
+    await proxy.request({ method: "eth_requestAccounts" });
+    const provider = new ethers.providers.Web3Provider(proxy);
     const signer = provider.getSigner();
     setUser({
       address: await signer.getAddress(),
+      proxy,
       provider,
       signer,
     });
     handleModalClose();
-  };
+  }
+  const connectMetamask = async () => connectWallet(window.ethereum);
+  const connectKaikas = async () => connectWallet(window.klaytn);
 
   const disconnect = async () => {
     setUser(undefined);
@@ -57,15 +63,10 @@ const Nav = ({
   }, [!!user]);
 
   useEffect(() => {
-    if (hasMetaMask) {
-      window.ethereum.on('accountsChanged', (accounts: string[]) => {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-        setUser({
-            address: accounts[0],
-            provider,
-             signer,
-          });
+    // https://docs.metamask.io/wallet/reference/provider-api/#accountschanged
+    if (user) {
+      user.proxy.on('accountsChanged', () => {
+        connectWallet(user.proxy);
       });
     }
   });
@@ -98,6 +99,11 @@ const Nav = ({
             {hasMetaMask && (
               <Button className="p-2" variant="primary" onClick={connectMetamask}>
                 Connect MetaMask
+              </Button>
+            )}
+            {hasKaikas && (
+              <Button className="p-2" variant="primary" onClick={connectKaikas}>
+                Connect Kaikas
               </Button>
             )}
           </Stack>
