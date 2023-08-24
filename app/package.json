@@ -4,8 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "dev": "npm run dev:localhost",
+    "dev:localhost": "vite --mode localhost",
+    "dev:cypress": "vite --mode cypress",
+    "build": "npm run build:localhost",
+    "build:localhost": "tsc && vite build --mode localhost",
+    "build:cypress": "tsc && vite build --mode cypress",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },

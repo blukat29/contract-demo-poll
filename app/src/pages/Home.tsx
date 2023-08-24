@@ -6,17 +6,12 @@ import { useQuery } from "@tanstack/react-query";
 import pollAbi from "../abi/poll.json";
 import catPng from "../assets/cat.png";
 import dogPng from "../assets/dog.png";
-
 import { User } from "../type/common";
 
-//// TODO : change contract address
-const POLL_CONTRACT = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // local
-// const POLL_CONTRACT = "0x6517968e4fcc3a5d3e3369f51c62991d0143cd2f"; // baobab
-
-const RPC_ENDPOINT = "http://localhost:8545";
+const RPC_ENDPOINT = import.meta.env.VITE_RPC_ENDPOINT;
+const POLL_CONTRACT = import.meta.env.VITE_POLL_CONTRACT;
 
 const Home = ({ user }: { user: User }): ReactElement => {
-  const [txHash, setTxHash] = useState("");
   const [pendingTx, setPendingTx] = useState(false);
 
   const fetchVotes = async () => {
@@ -39,14 +34,14 @@ const Home = ({ user }: { user: User }): ReactElement => {
     }
 
     setPendingTx(true);
-    const contract = new ethers.Contract(POLL_CONTRACT, pollAbi, user.provider);
-
-    const sentTx = await contract.connect(user.signer)[func](...args);
-    setTxHash(sentTx.hash);
-
-    await sentTx.wait();
-    await refetch();
-    setPendingTx(false);
+    try {
+      const contract = new ethers.Contract(POLL_CONTRACT, pollAbi, user.provider);
+      const sentTx = await contract.connect(user.signer)[func](...args);
+      await sentTx.wait();
+      await refetch();
+    } finally {
+      setPendingTx(false);
+    }
   };
   const onClickVoteCat = async () => sendTx({ func: "voteCat" });
   const onClickVoteDog = async () => sendTx({ func: "voteDog" });
