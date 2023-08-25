@@ -1,6 +1,6 @@
 import { ReactElement, useState } from "react";
-import { Button, Col, Form, Image, Row, Spinner, Stack } from "react-bootstrap";
-import { BigNumber, ethers } from "ethers";
+import { Button, Col, Form, Image, Row, Stack } from "react-bootstrap";
+import { ethers } from "ethers";
 import { useQuery } from "@tanstack/react-query";
 
 import pollAbi from "../abi/poll.json";
@@ -11,7 +11,7 @@ import { User } from "../type/common";
 const RPC_ENDPOINT = import.meta.env.VITE_RPC_ENDPOINT;
 const POLL_CONTRACT = import.meta.env.VITE_POLL_CONTRACT;
 
-const Home = ({ user }: { user: User }): ReactElement => {
+const Home = ({ user }: { user?: User }): ReactElement => {
   const [pendingTx, setPendingTx] = useState(false);
 
   const fetchVotes = async () => {
@@ -22,12 +22,12 @@ const Home = ({ user }: { user: User }): ReactElement => {
       dogs: await contract.dogVotes(),
       owner: await contract.owner(),
     };
-  }
+  };
   const { data, refetch } = useQuery(["votes"], fetchVotes, {
     refetchOnWindowFocus: false,
   });
 
-  const sendTx = async({ func, args = [] }: { func: string, args?: any[] }): Promise<void> => {
+  const sendTx = async ({ func, args = [] }: { func: string; args?: any[] }): Promise<void> => {
     if (!user) {
       alert("Connect wallet first");
       return;
@@ -51,14 +51,14 @@ const Home = ({ user }: { user: User }): ReactElement => {
       return;
     }
     sendTx({ func: "reset" });
-  }
+  };
 
   return (
     <div>
       <Row>
         <Col>
-          <p>RPC_ENDPOINT: { RPC_ENDPOINT }</p>
-          <p>POLL_CONTRACT: { POLL_CONTRACT }</p>
+          <p>RPC_ENDPOINT: {RPC_ENDPOINT}</p>
+          <p>POLL_CONTRACT: {POLL_CONTRACT}</p>
         </Col>
       </Row>
       <hr />

@@ -1,5 +1,5 @@
 import { useState, useEffect, ReactElement } from "react";
-import { Button, Stack, Modal, Navbar, Badge } from "react-bootstrap";
+import { Button, Stack, Modal, Navbar } from "react-bootstrap";
 import { ethers } from "ethers";
 import { User, EIP1193Provider } from "../type/common";
 
@@ -30,7 +30,7 @@ const Nav = ({
       signer,
     });
     handleModalClose();
-  }
+  };
   const connectMetamask = async () => connectWallet(window.ethereum);
   const connectKaikas = async () => connectWallet(window.klaytn);
   const disconnect = async () => {
@@ -45,12 +45,12 @@ const Nav = ({
     const provider = new ethers.providers.JsonRpcProvider(RPC_ENDPOINT);
     const netinfo = await provider.getNetwork();
     return netinfo.chainId;
-  }
+  };
   useEffect(() => {
     // https://docs.metamask.io/wallet/reference/provider-api/#accountschanged
     if (user) {
-      user.proxy.on('accountsChanged', () => {
-        console.log('accountsChanged');
+      user.proxy.on("accountsChanged", () => {
+        console.log("accountsChanged");
         connectWallet(user.proxy);
       });
 
