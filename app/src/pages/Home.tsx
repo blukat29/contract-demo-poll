@@ -24,7 +24,7 @@ const Home = ({ user }: { user: User }): ReactElement => {
     };
   }
   const { data, refetch } = useQuery(["votes"], fetchVotes, {
-    staleTime: 10*1000, // fetch at least 10 seconds later
+    refetchOnWindowFocus: false,
   });
 
   const sendTx = async({ func, args = [] }: { func: string, args?: any[] }): Promise<void> => {
